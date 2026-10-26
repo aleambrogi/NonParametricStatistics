@@ -1,0 +1,40 @@
+{
+  "historical": {
+    "rows": 344027,
+    "municipal_identifiers": 8879,
+    "year_min": 1982,
+    "year_max": 2024,
+    "missing_by_column": {
+      "COD_COM": 88,
+      "COD_PROV": 115,
+      "COD_REG": 14430,
+      "ANNO": 0,
+      "POPOLAZIONE": 100
+    },
+    "duplicate_municipality_year_rows": 364
+  },
+  "saved_forecasts": {
+    "rows": 134704,
+    "municipal_identifiers": 8419,
+    "year_min": 2025,
+    "year_max": 2040,
+    "missing_by_column": {
+      "COD_COM": 0,
+      "COD_PRO": 0,
+      "COD_REG": 8336,
+      "ANNO": 0,
+      "POP_PRED": 0,
+      "POP_LO": 0,
+      "POP_HI": 0,
+      "ALPHA_USED": 0
+    },
+    "reversed_interval_bounds": 0,
+    "point_forecasts_outside_interval": 43
+  },
+  "interpretation": [
+    "Diagnostics describe the original saved files; records are not changed.",
+    "Identifier gaps and repeated municipality/year pairs need source-level review.",
+    "A point forecast outside a quantile interval is reported, not automatically treated as an invalid interval.",
+    "Saved forecasts are not the held-out validation predictions."
+  ]
+}
