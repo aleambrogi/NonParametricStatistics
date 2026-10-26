@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # ===========================================================
 # LIBRERIE
 # ===========================================================
@@ -13,7 +16,7 @@ library(stringr)
 # 1. CARICO DATASET PRINCIPALE
 # ===========================================================
 df <- read.csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_finale.csv",
+  project_file("dataset_finale.csv"),
   stringsAsFactors = FALSE
 )
 
@@ -21,7 +24,7 @@ df <- read.csv(
 # 2. CARICO DATASET OSPEDALI
 # ===========================================================
 ospedali <- read.csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Scripts/DATASET_DIST/ps_stress.csv",
+  spatial_file("Scripts/DATASET_DIST/ps_stress.csv"),
   stringsAsFactors = FALSE
 )
 
@@ -76,14 +79,14 @@ df <- df %>%
 # 4. SHAPEFILE COMUNI
 # ===========================================================
 comuni <- st_read(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp",
+  spatial_file("Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp"),
   quiet = TRUE
 ) %>%
   st_transform(4326) %>%
   st_make_valid() %>%
   mutate(
     COMUNE  = str_trim(toupper(COMUNE))
-  ) 
+  )
 
 comuni <- comuni %>%
   rename(COD_COM = PRO_COM)
@@ -102,11 +105,11 @@ df_joined <- st_join(df_sf, comuni, join = st_within)
 df_clean <- df_joined %>%
   select(
     COMUNE,
-    
+
     time_travel_ps_1,
     time_travel_ps_2,
     travel_time_ps_ped,
-    
+
     stress_DO_1, stress_DS_1, stress_DH_1, PL_1,
     stress_DO_2, stress_DS_2, stress_DH_2, PL_2,
     stress_DO_ped, stress_DS_ped, stress_DH_ped, PL_ped
@@ -122,19 +125,19 @@ df_median <- df_clean %>%
     mediana_ps1    = median(time_travel_ps_1, na.rm = TRUE),
     mediana_ps2    = median(time_travel_ps_2, na.rm = TRUE),
     mediana_ps_ped = median(travel_time_ps_ped, na.rm = TRUE),
-    
+
     mediana_stress_DO1 = median(stress_DO_1, na.rm = TRUE),
     mediana_stress_DS1 = median(stress_DS_1, na.rm = TRUE),
     mediana_stress_DH1 = median(stress_DH_1, na.rm = TRUE),
-    
+
     mediana_stress_DO2 = median(stress_DO_2, na.rm = TRUE),
     mediana_stress_DS2 = median(stress_DS_2, na.rm = TRUE),
     mediana_stress_DH2 = median(stress_DH_2, na.rm = TRUE),
-    
+
     mediana_stress_DOped = median(stress_DO_ped, na.rm = TRUE),
     mediana_stress_DSped = median(stress_DS_ped, na.rm = TRUE),
     mediana_stress_DHped = median(stress_DH_ped, na.rm = TRUE),
-    
+
     mediana_PL1   = median(PL_1, na.rm = TRUE),
     mediana_PL2   = median(PL_2, na.rm = TRUE),
     mediana_PLped = median(PL_ped, na.rm = TRUE),
@@ -156,7 +159,7 @@ sum(is.na(df_median$COD_COM))
 # 8. CARICO POPOLAZIONE PREDDETTA 2040
 # ===========================================================
 pop_2040 <- read.csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/df_predicted_agaci_reconciled.csv",
+  project_file("df_predicted_agaci_reconciled.csv"),
   stringsAsFactors = FALSE
 ) %>%
   filter(ANNO == 2040) %>%
@@ -184,17 +187,17 @@ df_finale <- df_finale %>%
 # ===========================================================
 df_finale <- df_finale %>%
   mutate(
-    
+
     # lower bound
     stress_w1_lo   = POP_LO_REC  / mediana_PL1   * stress_raw_1,
     stress_w2_lo   = POP_LO_REC  / mediana_PL2   * stress_raw_2,
     stress_wped_lo = POP_LO_REC  / mediana_PLped * stress_raw_ped,
-    
+
     # point estimate
     stress_w1_mid   = POP_PRED_REC / mediana_PL1   * stress_raw_1,
     stress_w2_mid   = POP_PRED_REC / mediana_PL2   * stress_raw_2,
     stress_wped_mid = POP_PRED_REC / mediana_PLped * stress_raw_ped,
-    
+
     # upper bound
     stress_w1_hi   = POP_HI_REC  / mediana_PL1   * stress_raw_1,
     stress_w2_hi   = POP_HI_REC  / mediana_PL2   * stress_raw_2,
@@ -227,12 +230,12 @@ df_finale <- df_finale %>%
       1/3 * (mediana_ps2 * stress_w1_lo) / (mediana_ps1 + mediana_ps2) +
       1/3 * (mediana_ps1 * stress_w2_lo) / (mediana_ps1 + mediana_ps2) +
       1/3 * mediana_ps_ped * stress_wped_lo,
-    
+
     stress_final_mid =
       1/3 * (mediana_ps2 * stress_w1_mid) / (mediana_ps1 + mediana_ps2) +
       1/3 * (mediana_ps1 * stress_w2_mid) / (mediana_ps1 + mediana_ps2) +
       1/3 * mediana_ps_ped * stress_wped_mid,
-    
+
     stress_final_hi =
       1/3 * (mediana_ps2 * stress_w1_hi) / (mediana_ps1 + mediana_ps2) +
       1/3 * (mediana_ps1 * stress_w2_hi) / (mediana_ps1 + mediana_ps2) +
@@ -255,6 +258,6 @@ df_finale <- df_finale %>%
 # ===========================================================
 write.csv(
   df_finale,
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_stress_2040.csv",
+  project_file("dataset_stress_2040.csv"),
   row.names = FALSE
 )

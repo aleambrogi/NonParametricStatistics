@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # ===============================================================
 # COSTRUZIONE CURVE FUNZIONALI DI ACCESSIBILITÀ SANITARIA
 # Versione ottimizzata per dataset grandi (~1.2 milioni di righe)
@@ -19,7 +22,7 @@ cols_needed <- c(
 )
 
 # fread legge solo le colonne specificate
-data <- fread("dataset_finale.csv", select = cols_needed)
+data <- fread(project_file("dataset_finale.csv"), select = cols_needed)
 
 # Controlla dimensioni e memoria
 print(dim(data))
@@ -55,7 +58,7 @@ curves_province_long <- curves_province[, {
 }, by = grid_SIGLA_PROVINCIA]
 
 # ---- 7. SALVA i risultati (leggeri e compressi) ----
-fwrite(curves_province_long, "curves_province.csv.gz")
+fwrite(curves_province_long, project_file("curves_province.csv.gz"))
 
 # ---- 8. (Opzionale) Grafico rapido di controllo ----
 sample_prov <- sample(unique(curves_province_long$grid_SIGLA_PROVINCIA), 107)

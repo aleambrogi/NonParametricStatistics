@@ -1,10 +1,13 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(dplyr)
 library(readr)
 library(tidyr)
 library(purrr)
 library(stringr)
 
-path <- "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/1982_1991_TUTTO/1982_1991_TUTTO"
+path <- project_file("STORICO/1982_1991_TUTTO/1982_1991_TUTTO")
 
 files <- list.files(
   path = path,
@@ -14,18 +17,18 @@ files <- list.files(
 length(files)  # dovrebbe dare 95
 
 read_prov_82_90 <- function(file) {
-  
+
   df <- read_delim(
     file,
     delim = ";",
     locale = locale(encoding = "UTF-8"),
     show_col_types = FALSE
   )
-  
+
   df %>%
     # 1. solo totale popolazione
     filter(`Età` == 99, Sesso == "T") %>%
-    
+
     # 2. selezione colonne (robusta)
     select(
       COD_PROV = `Codice provincia`,
@@ -33,14 +36,14 @@ read_prov_82_90 <- function(file) {
       Comune,
       starts_with("Anno")
     ) %>%
-    
+
     # 3. wide → long
     pivot_longer(
       cols = starts_with("Anno"),
       names_to = "ANNO",
       values_to = "POPOLAZIONE"
     ) %>%
-    
+
     # 4. pulizia anno
     mutate(
       ANNO = as.integer(gsub("Anno ", "", ANNO)),
@@ -61,7 +64,7 @@ df_82_90 <- df_82_90 %>% filter(ANNO <= 1990)
 
 
 df_01_19 <- read.csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1991-2019_adj.csv"
+  project_file("STORICO/pop1991-2019_adj.csv")
 ) %>%
   select(COD_COM, COD_PROV, COD_REG, ANNO, POPOLAZIONE)
 
@@ -97,7 +100,7 @@ df_final <- df_final %>%
     COD_REG  = str_pad(str_trim(COD_REG), 2, "left", "0")
   )
 
-comuni_ref <- st_read("C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp") %>% 
+comuni_ref <- st_read(spatial_file("Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp")) %>%
   st_drop_geometry() %>%
   transmute(
     COD_COM = str_pad(as.character(PRO_COM), 6, "left", "0"),
@@ -114,7 +117,7 @@ df_final <- df_final %>% select(COD_COM, COD_PROV, COD_REG.y, ANNO, POPOLAZIONE)
 
 colSums(is.na(df_final[c("COD_PROV", "COD_REG")]))
 
-write.csv(df_final, "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1982-2019_adj.csv",
+write.csv(df_final, project_file("STORICO/pop1982-2019_adj.csv"),
           row.names = FALSE
 )
 

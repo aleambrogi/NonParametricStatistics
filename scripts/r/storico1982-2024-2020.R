@@ -1,10 +1,13 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(dplyr)
 library(tidyr)
 library(stringr)
 library(readr)
 
 # --- 1. Leggi il dataset recente ---
-df_recent <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/popolazione_aggregata_2021_2024.csv", stringsAsFactors = FALSE)
+df_recent <- read.csv(project_file("STORICO/popolazione_aggregata_2021_2024.csv"), stringsAsFactors = FALSE)
 
 # --- 2. Trasforma in formato long ---
 df_recent_long <- df_recent %>%
@@ -24,7 +27,7 @@ df_recent_long <- df_recent %>%
 # --- 3. Riempimento COD_PROV e COD_REG usando il dataset storico (ultimo anno disponibile) ---
 # Prendo i codici dal dataset storico (ultimo anno per ogni comune)
 
-df_final <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1982-2019_adj.csv", stringsAsFactors = FALSE)
+df_final <- read.csv(project_file("STORICO/pop1982-2019_adj.csv"), stringsAsFactors = FALSE)
 
 df_final$COD_COM <- as.character(df_final$COD_COM)
 
@@ -55,7 +58,7 @@ any(is.na(df_full$COD_PROV))  # dovrebbe dare FALSE
 any(is.na(df_full$COD_REG))   # dovrebbe dare FALSE
 
 # --- 6. Salvataggio ---
-write.csv(df_full, "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1982-2024-2020_adj.csv",
+write.csv(df_full, project_file("STORICO/pop1982-2024-2020_adj.csv"),
           row.names = FALSE
 )
 

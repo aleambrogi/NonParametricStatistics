@@ -1,10 +1,13 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(dplyr)
 library(readr)
 library(stringr)
 
 # --- 1. Leggi il dataset 2020 ---
 
-df_2020 <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop2020.csv", stringsAsFactors = FALSE, sep =';')
+df_2020 <- read.csv(project_file("STORICO/pop2020.csv"), stringsAsFactors = FALSE, sep =';')
 
 # --- 2. Filtra solo totale popolazione ---
 df_2020_total <- df_2020 %>%
@@ -17,7 +20,7 @@ df_2020_total <- df_2020 %>%
 
 # --- 3. Recupera COD_PROV e COD_REG da df_full storico ---
 
-df_full <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1982-2024-2020_adj.csv", stringsAsFactors = FALSE) %>%
+df_full <- read.csv(project_file("STORICO/pop1982-2024-2020_adj.csv"), stringsAsFactors = FALSE) %>%
   mutate(COD_COM = str_pad(as.character(COD_COM), width = 6, side = "left", pad = "0"))
 
 codici_ref <- df_full %>%
@@ -46,6 +49,6 @@ df_full <- bind_rows(df_full, df_2020_total) %>%
   arrange(COD_COM, ANNO)
 
 # --- 6. Salva il dataset completo ---
-write.csv(df_full, "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop1982-2024_adj.csv", row.names = FALSE)
+write.csv(df_full, project_file("STORICO/pop1982-2024_adj.csv"), row.names = FALSE)
 
 

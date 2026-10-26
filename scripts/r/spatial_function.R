@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(dplyr)
 library(sf)
 library(ggplot2)
@@ -7,7 +10,7 @@ library(viridis)
 # -----------------------------------------------------------
 # 1. Dataset dei comuni con stress 2024
 # -----------------------------------------------------------
-df_prov <- readRDS("df_prov_2024.rds")
+df_prov <- readRDS(project_file("df_prov_2024.rds"))
 
 df_plot <- df_prov %>%
   st_centroid() %>%                  # prendo i centroidi
@@ -33,7 +36,7 @@ grid <- expand.grid(lon = lon_seq, lat = lat_seq)
 # -----------------------------------------------------------
 # 4. Shapefile dei comuni italiani
 # -----------------------------------------------------------
-comuni_sf <- st_read("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\Com2021\\Com2021.shp") %>%
+comuni_sf <- st_read(spatial_file("Scripts/DATASET_DIST/Com2021/Com2021.shp")) %>%
   st_transform(4326) %>%
   st_make_valid()
 
@@ -90,8 +93,8 @@ library(plotly)
 lon_seq <- unique(grid$lon)
 lat_seq <- unique(grid$lat)
 
-z_matrix <- matrix(grid$stress_pred, 
-                   nrow = length(lon_seq), 
+z_matrix <- matrix(grid$stress_pred,
+                   nrow = length(lon_seq),
                    ncol = length(lat_seq))
 
 library(rgl)

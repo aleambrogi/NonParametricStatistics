@@ -1,11 +1,14 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(sf)
 library(dplyr)
 
 # 1. Leggi dataset popolazione
-df_pop <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop2002-2021.csv", sep =';')  # oppure readRDS se necessario
+df_pop <- read.csv(project_file("STORICO/pop2002-2021.csv"), sep =';')  # oppure readRDS se necessario
 
 comuni_shp <- st_read(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp"
+  spatial_file("Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp")
 ) %>%
   st_transform(4326) %>%
   st_make_valid()
@@ -20,7 +23,7 @@ df_pop_reg <- df_pop %>%
   )
 
 province_shp <- st_read(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/ProvCM2021/ProvCM2021.shp"
+  spatial_file("Datasets/ISTAT shape file/Limiti2021/ProvCM2021/ProvCM2021.shp")
 ) %>%
   st_transform(4326) %>%
   st_make_valid()
@@ -45,7 +48,7 @@ df_clean <- df_clean %>%
 
 write.csv(
   st_drop_geometry(median_geo),
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/STORICO/pop2002-2021_adj.csv",
+  project_file("STORICO/pop2002-2021_adj.csv"),
   row.names = FALSE
 )
 

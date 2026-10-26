@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # ================================
 # 0. LIBRERIE
 # ================================
@@ -12,7 +15,7 @@ library(scales)
 # 1. SHAPEFILE COMUNI ITALIA
 # ================================
 comuni_sf <- st_read(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp",
+  spatial_file("Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp"),
   quiet = TRUE
 ) %>%
   st_transform(4326) %>%
@@ -26,7 +29,7 @@ comuni_sf <- st_read(
 # 2. DATASET PREVISIONI
 # ================================
 pred <- read.csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/df_predicted_agaci_reconciled.csv",
+  project_file("df_predicted_agaci_reconciled.csv"),
   stringsAsFactors = FALSE
 ) %>%
   mutate(
@@ -59,12 +62,12 @@ map_var <- comuni_sf %>%
 # ================================
 # 5. PLOT BASE (ULTRA LEGGERO)
 # ================================
-dir.create("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/maps_var", showWarnings = FALSE)
+dir.create(project_file("maps_var"), showWarnings = FALSE)
 
 years <- sort(unique(map_var$ANNO))
 
 for (y in years) {
-  
+
   p <- ggplot(filter(map_var, ANNO == y)) +
     geom_sf(aes(fill = VAR_PERC), color = NA) +
     scale_fill_gradient2(
@@ -82,14 +85,14 @@ for (y in years) {
       title = paste("Variazione % popolazione –", y),
       caption = "Previsioni demografiche"
     )
-  
+
   ggsave(
-    filename = paste0("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/maps_var/map_", y, ".png"),
+    filename = paste0(project_file("maps_var/map_"), y, ".png"),
     plot = p,
     width = 8,
     height = 10,
     dpi = 200
   )
-  
+
   cat("Salvato anno", y, "\n")
 }

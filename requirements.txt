@@ -1,0 +1,9 @@
+# Python 3.12. Full notebook environment; original coursework versions were not recorded.
+numpy
+pandas
+matplotlib
+torch
+tqdm
+scikit-learn
+statsmodels
+jupyterlab

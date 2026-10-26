@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # ===============================================================
 # CURVE FUNZIONALI DI ACCESSIBILITÀ SANITARIA – FUNZIONE QUANTILE
 # ===============================================================
@@ -14,7 +17,7 @@ cols_needed <- c(
   "time_travel_ps_1"        # tempo verso PS più vicino
 )
 
-data <- fread("dataset_finale.csv", select = cols_needed)
+data <- fread(project_file("dataset_finale.csv"), select = cols_needed)
 data <- data[!is.na(time_travel_ps_1) & !is.na(TOT_P_2021) & TOT_P_2021 > 0]
 
 # ---- 2. Definizione della funzione per calcolo della funzione quantile ----
@@ -23,7 +26,7 @@ compute_quantile_curve <- function(df, p_seq = seq(0.1, 0.9, by = 0.1)) {
   # ordina i tempi e cumulativa della popolazione
   df_ord <- df[order(time_travel_ps_1)]
   cum_pop <- cumsum(df_ord$TOT_P_2021) / sum(df_ord$TOT_P_2021)
-  
+
   # funzione quantile: per ogni p, tempo minimo t con F(t) >= p
   sapply(p_seq, function(p) {
     idx <- which(cum_pop >= p)[1]   # primo indice che supera p
@@ -49,7 +52,7 @@ quantiles_province_long <- quantiles_province[, {
 }, by = grid_SIGLA_PROVINCIA]
 
 # ---- 5. Salvataggio ----
-fwrite(quantiles_province_long, "quantile_curves_province.csv.gz")
+fwrite(quantiles_province_long, project_file("quantile_curves_province.csv.gz"))
 
 # ---- 6. Controllo grafico rapido ----
 sample_prov <- sample(unique(quantiles_province_long$grid_SIGLA_PROVINCIA), 107)

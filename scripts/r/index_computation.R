@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # Librerie
 library(dplyr)
 library(sf)
@@ -9,12 +12,12 @@ library(viridis)
 #-----------------------------------------------------------
 # 1. CARICO DATASET
 #-----------------------------------------------------------
-df <- read.csv("C:\\Users\\samsung\\Documents\\MAGISTRALE\\SECONDO ANNO\\NONPARAMETRIC STATISTICS\\PROJECT\\dataset_finale.csv")
+df <- read.csv(project_file("dataset_finale.csv"))
 
 # ===========================================================
 # 2. CARICO DATASET OSPEDALI (stress + posti letto)
 # ===========================================================
-ospedali <- read.csv("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\ps_stress.csv")
+ospedali <- read.csv(spatial_file("Scripts/DATASET_DIST/ps_stress.csv"))
 
 # Rinomino colonne per evitare confusioni
 ospedali <- ospedali %>%
@@ -70,7 +73,7 @@ df <- df %>%
 # ===========================================================
 # 4. CARICO SHAPEFILE COMUNI
 # ===========================================================
-comuni <- st_read("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\Com2021\\Com2021.shp")
+comuni <- st_read(spatial_file("Scripts/DATASET_DIST/Com2021/Com2021.shp"))
 comuni <- st_transform(comuni, 4326)
 comuni <- st_make_valid(comuni)
 
@@ -95,12 +98,12 @@ cat("Punti senza comune:", missing, "\n")
 df_clean <- df_joined %>%
   select(
     COMUNE, PRO_COM,
-    
+
     # Tempi percorrenza
     time_travel_ps_1,
     time_travel_ps_2,
     travel_time_ps_ped,
-    
+
     # Stress ospedalieri
     stress_DO_1, stress_DS_1, stress_DH_1, PL_1,
     stress_DO_2, stress_DS_2, stress_DH_2, PL_2,
@@ -117,7 +120,7 @@ df_median <- df_clean %>%
     mediana_ps1      = median(time_travel_ps_1, na.rm = TRUE),
     mediana_ps2      = median(time_travel_ps_2, na.rm = TRUE),
     mediana_ps_ped   = median(travel_time_ps_ped, na.rm = TRUE),
-    
+
     mediana_stress_DO1   = median(stress_DO_1, na.rm = TRUE),
     mediana_stress_DS1   = median(stress_DS_1, na.rm = TRUE),
     mediana_stress_DH1   = median(stress_DH_1, na.rm = TRUE),
@@ -127,7 +130,7 @@ df_median <- df_clean %>%
     mediana_stress_DOped   = median(stress_DO_ped, na.rm = TRUE),
     mediana_stress_DSped   = median(stress_DS_ped, na.rm = TRUE),
     mediana_stress_DHped   = median(stress_DH_ped, na.rm = TRUE),
-    
+
     mediana_PL1          = median(PL_1, na.rm = TRUE),
     mediana_PL2          = median(PL_2, na.rm = TRUE),
     mediana_PLped          = median(PL_ped, na.rm = TRUE)
@@ -138,9 +141,9 @@ df_median <- df_clean %>%
 # ===========================================================
 
 pop <- read_delim(
-  "C:\\Users\\samsung\\Documents\\MAGISTRALE\\SECONDO ANNO\\NONPARAMETRIC STATISTICS\\PROJECT\\popolazione2021comuni.csv",
+  project_file("popolazione2021comuni.csv"),
   delim = ";",
-  locale = locale(encoding = "UTF-8"), 
+  locale = locale(encoding = "UTF-8"),
   guess_max = 5000
 )
 
@@ -198,8 +201,8 @@ df_finale <- df_finale %>%
     stress_final = minmax(stress_final)
   )
 
-write.csv(df_finale, 
-          "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_finale_completo.csv", 
+write.csv(df_finale,
+          project_file("dataset_finale_completo.csv"),
           row.names = FALSE)
 
 comuni$COMUNE <- trimws(toupper(comuni$COMUNE))

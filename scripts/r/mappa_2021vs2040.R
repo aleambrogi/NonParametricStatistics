@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(sf)
 library(dplyr)
 library(readr)
@@ -6,7 +9,7 @@ library(viridis)
 
 
 comuni <- st_read(
-  "C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp",
+  spatial_file("Datasets/ISTAT shape file/Limiti2021/Com2021/Com2021.shp"),
   quiet = TRUE
 ) %>%
   st_transform(4326) %>%
@@ -16,7 +19,7 @@ comuni <- st_read(
   )
 
 stress_2021 <- read_csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_finale_stress_2021_2024.csv"
+  project_file("dataset_finale_stress_2021_2024.csv")
 ) %>%
   mutate(
     COMUNE = as.character(COMUNE)
@@ -26,7 +29,7 @@ stress_2021 <- read_csv(
 
 
 stress_2040 <- read_csv(
-  "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_stress_2040.csv"
+  project_file("dataset_stress_2040.csv")
 ) %>%
   mutate(
     COD_COM = as.character(COD_COM)

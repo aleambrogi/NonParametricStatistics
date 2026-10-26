@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 # Librerie
 library(dplyr)
 library(sf)
@@ -8,12 +11,12 @@ library(classInt)
 # -----------------------------------------------------------
 # 1. CARICO DATASET COMPLETO (tempi e stress ospedaliero)
 # -----------------------------------------------------------
-df <- read.csv("C:\\Users\\samsung\\Documents\\MAGISTRALE\\SECONDO ANNO\\NONPARAMETRIC STATISTICS\\PROJECT\\dataset_finale.csv")
+df <- read.csv(project_file("dataset_finale.csv"))
 
 # ===========================================================
 # 2. CARICO DATASET OSPEDALI (stress + posti letto)
 # ===========================================================
-ospedali <- read.csv("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\ps_stress.csv")
+ospedali <- read.csv(spatial_file("Scripts/DATASET_DIST/ps_stress.csv"))
 
 ospedali <- ospedali %>%
   rename(
@@ -53,12 +56,12 @@ df <- df %>%
 # ===========================================================
 # 4. CARICO POPOLAZIONE AGGREGATA PER ANNI
 # ===========================================================
-pop <- read.csv("C:\\Users\\samsung\\Documents\\MAGISTRALE\\SECONDO ANNO\\NONPARAMETRIC STATISTICS\\PROJECT\\popolazione_aggregata_2021_2024.csv")
+pop <- read.csv(project_file("popolazione_aggregata_2021_2024.csv"))
 
 # Mantieni solo colonne necessarie
 pop <- pop %>% select(Comune, starts_with("Pop_"))
 
-comuni <- st_read("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\Com2021\\Com2021.shp")
+comuni <- st_read(spatial_file("Scripts/DATASET_DIST/Com2021/Com2021.shp"))
 comuni <- st_transform(comuni, 4326)
 comuni <- st_make_valid(comuni)
 
@@ -84,7 +87,7 @@ df_median <- df %>%
     mediana_ps1      = median(time_travel_ps_1, na.rm = TRUE),
     mediana_ps2      = median(time_travel_ps_2, na.rm = TRUE),
     mediana_ps_ped   = median(travel_time_ps_ped, na.rm = TRUE),
-    
+
     mediana_stress_DO1   = median(stress_DO_1, na.rm = TRUE),
     mediana_stress_DS1   = median(stress_DS_1, na.rm = TRUE),
     mediana_stress_DH1   = median(stress_DH_1, na.rm = TRUE),
@@ -94,11 +97,11 @@ df_median <- df %>%
     mediana_stress_DOped = median(stress_DO_ped, na.rm = TRUE),
     mediana_stress_DSped = median(stress_DS_ped, na.rm = TRUE),
     mediana_stress_DHped = median(stress_DH_ped, na.rm = TRUE),
-    
+
     mediana_PL1   = median(PL_1, na.rm = TRUE),
     mediana_PL2   = median(PL_2, na.rm = TRUE),
     mediana_PLped = median(PL_ped, na.rm = TRUE),
-    
+
     Pop_2021 = median(Pop_2021, na.rm = TRUE),
     Pop_2022 = median(Pop_2022, na.rm = TRUE),
     Pop_2023 = median(Pop_2023, na.rm = TRUE),
@@ -133,7 +136,7 @@ calc_stress_final <- function(Pop, med_PL1, med_PL2, med_PLped,
   weighted1 <- minmax(Pop / med_PL1 * stress_raw1)
   weighted2 <- minmax(Pop / med_PL2 * stress_raw2)
   weightedped <- minmax(Pop / med_PLped * stress_rawped)
-  
+
   stress <- 1/3 * (med_ps2 * weighted1) / (med_ps1 + med_ps2) +
     1/3 * (med_ps1 * weighted2) / (med_ps1 + med_ps2) +
     1/3 * med_ps_ped * weightedped
@@ -144,7 +147,7 @@ calc_stress_final <- function(Pop, med_PL1, med_PL2, med_PLped,
 for (yr in 2021:2024) {
   pop_col <- paste0("Pop_", yr)
   stress_col <- paste0("stress_", yr)
-  
+
   df_median[[stress_col]] <- calc_stress_final(
     Pop = df_median[[pop_col]],
     med_PL1 = df_median$mediana_PL1,
@@ -164,12 +167,12 @@ for (yr in 2021:2024) {
 # ===========================================================
 df_output <- df_median %>%
   select(COMUNE, starts_with("stress_"))
-df_output <- df_output %>% 
+df_output <- df_output %>%
   select(COMUNE,stress_2021,stress_2022,stress_2023,stress_2024)
 df_output <- st_drop_geometry(df_output)
 
 write.csv(df_output,
-          "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_finale_stress_2021_2024.csv",
+          project_file("dataset_finale_stress_2021_2024.csv"),
           row.names = FALSE)
 
 comuni$COMUNE <- trimws(toupper(comuni$COMUNE))
@@ -183,19 +186,19 @@ years <- 2021:2024
 # ---- 2. Funzione robusta per plottare la mappa ----
 
 plot_map <- function(data, year) {
-  
+
   var <- paste0("stress_", year)
-  
+
   vals <- data[[var]]
   vals_no_na <- vals[!is.na(vals)]
-  
+
   if (length(vals_no_na) == 0) stop(paste("Tutti NA per", var))
   if (length(unique(vals_no_na)) == 1) stop(paste("Tutti uguali per", var))
-  
+
   brks <- classIntervals(vals_no_na, n = 10, style = "quantile")$brks
-  
+
   ggplot(data) +
-    geom_sf(aes(fill = cut(vals, breaks = brks, include.lowest = TRUE)), 
+    geom_sf(aes(fill = cut(vals, breaks = brks, include.lowest = TRUE)),
             color = NA) +
     scale_fill_viridis_d(name = paste("Stress", year)) +
     labs(
@@ -206,7 +209,7 @@ plot_map <- function(data, year) {
 }
 
 # ---- 3. Salva tutte le mappe in PNG ----
-output_dir <- "C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/maps/"
+output_dir <- project_file("maps/")
 dir.create(output_dir, showWarnings = FALSE)
 
 for (yr in years) {

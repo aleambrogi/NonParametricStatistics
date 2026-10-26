@@ -1,3 +1,6 @@
+# Run from the repository root. See scripts/r/README.md for external inputs.
+source(file.path("scripts", "r", "project_paths.R"))
+
 library(dplyr)
 library(sf)
 library(ggplot2)
@@ -6,7 +9,7 @@ library(ggsignif)
 # -----------------------------------------------------------
 # 1. Carico dataset stress
 # -----------------------------------------------------------
-df <- read.csv("C:/Users/samsung/Documents/MAGISTRALE/SECONDO ANNO/NONPARAMETRIC STATISTICS/PROJECT/dataset_finale_stress_2021_2024.csv")
+df <- read.csv(project_file("dataset_finale_stress_2021_2024.csv"))
 
 # Prendo solo colonne di interesse: COMUNE e ultima colonna (stress)
 stress_col <- names(df)[ncol(df)]
@@ -14,7 +17,7 @@ stress_col <- names(df)[ncol(df)]
 # -----------------------------------------------------------
 # 2. Carico shapefile province
 # -----------------------------------------------------------
-province <- st_read("C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED STATISTICS/GRINS Indice SSN/Datasets/ISTAT shape file/Limiti2021/ProvCM2021/ProvCM2021.shp") %>%
+province <- st_read(spatial_file("Datasets/ISTAT shape file/Limiti2021/ProvCM2021/ProvCM2021.shp")) %>%
   st_transform(4326) %>%
   st_make_valid()
 
@@ -24,7 +27,7 @@ province <- st_read("C:/Users/samsung/Documents/MAGISTRALE/PRIMO ANNO/APPLIED ST
 # -----------------------------------------------------------
 # 3. Join spaziale per aggiungere provincia e regione
 # -----------------------------------------------------------
-comuni <- st_read("C:\\Users\\samsung\\Documents\\MAGISTRALE\\PRIMO ANNO\\APPLIED STATISTICS\\GRINS Indice SSN\\Scripts\\DATASET_DIST\\Com2021\\Com2021.shp")
+comuni <- st_read(spatial_file("Scripts/DATASET_DIST/Com2021/Com2021.shp"))
 comuni <- st_transform(comuni, 4326)
 comuni <- st_make_valid(comuni)
 
@@ -83,4 +86,4 @@ ggplot(df_prov, aes(x = COD_REG.x, y = stress_2024)) +
 
 
 # Nel file originale dove hai df_prov
-saveRDS(df_prov, "df_prov_2024.rds")  # salva l’oggetto così com’è
+saveRDS(df_prov, project_file("df_prov_2024.rds"))  # salva l’oggetto così com’è
